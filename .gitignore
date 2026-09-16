@@ -1,0 +1,9 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+chroma_db/
+bm25_index.pkl
+data/papers/*.pdf
+.DS_Store
