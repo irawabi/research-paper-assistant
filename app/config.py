@@ -15,11 +15,11 @@ class Settings:
         self.chroma_db_dir = os.getenv("CHROMA_DB_DIR", "./chroma_db")
         self.bm25_index_path = os.getenv("BM25_INDEX_PATH", "./bm25_index.pkl")
 
-        self.chunk_size = int(os.getenv("CHUNK_SIZE", "800"))
-        self.chunk_overlap = int(os.getenv("CHUNK_OVERLAP", "150"))
+        self.chunk_size = 800
+        self.chunk_overlap = 150
 
-        self.app_host = os.getenv("APP_HOST", "0.0.0.0")
-        self.app_port = int(os.getenv("APP_PORT", "8000"))
+        self.app_host = "0.0.0.0"
+        self.app_port = 8000
 
     def require_llm_config(self) -> None:
         if not self.openrouter_api_key:
