@@ -1,7 +1,7 @@
 # Research Paper Assistant
 
 A retrieval-augmented Q&A system over a collection of research papers, built
-to demonstrate real retrieval engineering — not just "embed and prompt."
+to demonstrate real retrieval engineering"
 
 Upload PDFs of research papers and ask natural language questions across
 your collection. Answers are structured and cited back to the specific
@@ -17,8 +17,6 @@ retrieval over an AI system, not just a single LLM call. This
 README documents the design decisions and trade-offs made to satisfy that
 brief.
 
-## Why this isn't a toy RAG demo
-
 Most student RAG projects do: chunk → embed → cosine similarity → stuff into
 a prompt. This one adds the pieces that actually matter for retrieval
 quality and answer reliability in production systems:
@@ -30,32 +28,6 @@ quality and answer reliability in production systems:
 | **LLM reranking** | Shortlisted candidates are rescored for relevance before being used as context | Retrieval recall and retrieval precision are different problems — reranking fixes precision after a wide initial recall pass. |
 | **Structured, cited output** | LLM is forced into a validated Pydantic schema (`answer`, `key_points`, `citations`, `confidence`) | Freeform text answers aren't reliable enough to build a product on. Structured output with per-claim citations is. |
 
-## Architecture
-
-```mermaid
-flowchart LR
-    subgraph Ingestion
-        A[PDF Upload] --> B[PDF Loader]
-        B --> C[Chunker]
-        C --> D[Embedding Model]
-        D --> E[(Chroma Vector Store)]
-        C --> F[(BM25 Index)]
-    end
-
-    subgraph Query Time
-        Q[User Question] --> MQ[Multi-Query Expansion]
-        MQ --> DR[Dense Search]
-        MQ --> SR[BM25 Search]
-        DR --> RRF[Reciprocal Rank Fusion]
-        SR --> RRF
-        RRF --> RR[LLM Reranker]
-        RR --> CTX[Build Context]
-        CTX --> LLM[LLM: Structured Answer + Citations]
-    end
-
-    E -.-> DR
-    F -.-> SR
-```
 
 ## Project structure
 
@@ -130,11 +102,3 @@ curl -X POST http://localhost:8000/chat \
 - **BM25 index** is rebuilt in memory on ingestion rather than persisted
   incrementally — fine at this scale, would need a real sparse index (e.g.
   Elasticsearch/OpenSearch) for a larger corpus.
-
-## Possible extensions
-
-- Fetch papers directly by arXiv ID instead of manual PDF upload
-- Section-aware chunking (detect Abstract/Method/Results/Conclusion)
-- Cross-paper comparison queries ("how do these two papers differ in X")
-- Swap LLM reranker for a local cross-encoder for latency/cost
-- Add an evaluation harness (retrieval hit-rate, answer grounding) to measure retrieval quality over time
